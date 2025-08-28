@@ -1,0 +1,965 @@
+basePath: /
+host: 39.105.113.157:8080
+info:
+  contact: {}
+  description: 云存储系统的 RESTful API 接口文档
+  title: 云存储系统 API 文档
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用邮箱或用户名和密码进行登录
+      parameters:
+      - description: 邮箱（和 user_name 至少填写一个）
+        example: '"user@example.com"'
+        in: body
+        name: email
+        schema:
+          type: string
+      - description: 用户名（和 email 至少填写一个）
+        example: '"john"'
+        in: body
+        name: user_name
+        schema:
+          type: string
+      - description: 密码
+        example: '"123456"'
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"access_token": "...", "refresh_token": "..."}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "无效请求"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "用户不存在或密码错误"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 用户登录
+      tags:
+      - 认证
+  /auth/logout:
+    post:
+      description: 清除服务器上的 Refresh Token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "退出登录成功"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "未授权"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 用户退出登录
+      tags:
+      - 认证
+  /auth/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: 使用 Refresh Token 获取新的 Access Token 和 Refresh Token
+      parameters:
+      - description: Refresh Token
+        example: '"your_refresh_token_here"'
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"access_token": "...", "refresh_token": "..."}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "请求无效"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "非法 refresh token"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 刷新令牌
+      tags:
+      - 认证
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 使用邮箱、密码、用户名和验证码注册
+      parameters:
+      - description: 邮箱
+        example: '"user@example.com"'
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: 密码
+        example: '"123456"'
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: 用户名
+        example: '"john"'
+        in: body
+        name: user_name
+        required: true
+        schema:
+          type: string
+      - description: 验证码
+        example: '"123456"'
+        in: body
+        name: code
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "注册成功"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "无效请求"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "验证码错误"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 用户注册
+      tags:
+      - 认证
+  /auth/resetpassword:
+    post:
+      consumes:
+      - application/json
+      description: 通过验证码重置用户密码
+      parameters:
+      - description: 邮箱地址
+        example: '"user@example.com"'
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: 验证码（6位）
+        example: '"123456"'
+        in: body
+        name: code
+        required: true
+        schema:
+          type: string
+      - description: 新密码
+        example: '"newpass123"'
+        in: body
+        name: new_password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "密码重置成功"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "验证码错误"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 重置密码
+      tags:
+      - 认证
+  /auth/send-code:
+    post:
+      consumes:
+      - application/json
+      description: 向指定邮箱发送6位验证码（有效期5分钟）
+      parameters:
+      - description: 邮箱地址
+        example: '"user@example.com"'
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "验证码已发送"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "无效请求"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: '{"error": "邮件发送失败"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 发送验证码
+      tags:
+      - 认证
+  /auth/resetcode:
+    post:
+      consumes:
+      - application/json
+      description: 向用户邮箱发送密码重置验证码
+      parameters:
+      - description: 邮箱地址
+        example: '"user@example.com"'
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "验证码已发送"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "邮箱格式错误"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: '{"error": "发送验证码失败"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 发送重置验证码
+      tags:
+      - 认证
+  /cloud/addFolder:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 为指定用户创建新文件夹
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      - description: 父文件夹ID
+        example: '"0"'
+        in: query
+        name: parentFolderId
+        type: string
+      - description: 文件夹名称
+        example: '"新建文件夹"'
+        in: formData
+        name: fileFolderName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "文件夹创建成功"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 创建文件夹
+      tags:
+      - 文件管理
+  /cloud/deleteFile:
+    get:
+      description: 删除用户指定的文件
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      - description: 文件ID
+        example: '"123"'
+        in: query
+        name: fId
+        required: true
+        type: string
+      - description: 所在文件夹ID
+        example: '"0"'
+        in: query
+        name: folderId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "文件删除成功"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 删除文件
+      tags:
+      - 文件管理
+  /cloud/deleteFolder:
+    get:
+      description: 删除指定文件夹及其内容
+      parameters:
+      - description: 文件夹ID
+        example: '"456"'
+        in: query
+        name: folderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "删除成功"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "缺少 folderId 参数"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "文件夹不存在"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 删除文件夹
+      tags:
+      - 文件管理
+  /cloud/downloadFile:
+    get:
+      description: 获取文件下载链接
+      parameters:
+      - description: 文件ID
+        example: '"123"'
+        in: query
+        name: fId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"downloadUrl": "文件下载链接"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"message": "File not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 下载文件
+      tags:
+      - 文件管理
+  /cloud/files:
+    get:
+      description: 获取指定用户和目录下的文件和文件夹列表
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      - description: 父文件夹ID
+        example: '"0"'
+        in: query
+        name: parentFolderId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回文件列表和文件夹信息
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取文件列表
+      tags:
+      - 文件管理
+  /cloud/getQrCode:
+    post:
+      description: 生成文件分享链接和提取码
+      parameters:
+      - description: 用户名
+        example: '"user123"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      - description: 文件ID
+        example: '"123"'
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 基础URL
+        example: '"https://example.com/share"'
+        in: query
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{\"error\": \"user_name is required\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"error\": \"user not found\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 创建文件分享链接
+      tags:
+      - 文件分享
+  /cloud/help:
+    get:
+      description: 获取用户帮助页面相关数据（包括用户信息和文件使用情况）
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"currHelp": "active", "user": {}, "fileDetailUse": {}}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取帮助页面信息
+      tags:
+      - 系统管理
+  /cloud/image-files:
+    get:
+      description: 获取用户的所有图片文件(类型为2的文件)
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"user": {}, "fileDetailUse": {}, "imgFiles": [], "imgCount":
+            0, "currImg": "active", "currClass": "active"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取图片文件列表
+      tags:
+      - 文件管理
+  /cloud/index:
+    get:
+      description: 获取用户首页展示的所有数据（包括用户信息、文件统计等）
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"user": {}, "currIndex": "active", "userFileStore": {}, "fileCount":
+            0, "fileFolderCount": 0, "fileDetailUse": {}}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取用户首页数据
+      tags:
+      - 文件管理
+  /cloud/music-files:
+    get:
+      description: 获取用户的所有音乐文件(类型为4的文件)
+      parameters:
+      - description: 用户名
+        example: '"music_lover"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{\"error\": \"user_name is required\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"error\": \"user not found\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取音乐文件列表
+      tags:
+      - 文件管理
+  /cloud/other-files:
+    get:
+      description: 获取用户的所有其他类型文件(类型为5的文件)
+      parameters:
+      - description: 用户名
+        example: '"user123"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{\"error\": \"user_name is required\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"error\": \"user not found\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取其他类型文件列表
+      tags:
+      - 文件管理
+  /cloud/updateFolder:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 修改指定文件夹的名称
+      parameters:
+      - description: 新文件夹名称
+        example: '"新文件夹名"'
+        in: formData
+        name: fileFolderName
+        required: true
+        type: string
+      - description: 文件夹ID
+        example: '"123"'
+        in: formData
+        name: fileFolderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "文件夹名称更新成功", "folderId": "123", "parentFolder":
+            "0"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"message": "参数不能为空"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"message": "文件夹不存在"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 修改文件夹名称
+      tags:
+      - 文件管理
+  /cloud/upload:
+    get:
+      description: 获取上传页面所需的文件夹结构和用户信息
+      parameters:
+      - description: 用户名
+        example: '"user123"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      - description: 当前文件夹ID
+        example: '"0"'
+        in: query
+        name: folderId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{\"error\": \"user_name is required\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"error\": \"user not found\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 上传页面数据
+      tags:
+      - 文件管理
+  /cloud/uploadFile:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传文件到服务器和COS存储
+      parameters:
+      - description: 用户名
+        example: '"user123"'
+        in: header
+        name: user_name
+        required: true
+        type: string
+      - description: 目标文件夹ID
+        example: '"123"'
+        in: header
+        name: id
+        required: true
+        type: string
+      - description: 上传的文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{\"code\": 200, \"message\": \"file uploaded successfully\"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{\"error\": \"user_name not provided\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "402":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: '{\"error\": \"file already exists\", \"code\": 501}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: '{\"error\": \"failed to create file\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 处理文件上传
+      tags:
+      - 文件管理
+  /cloud/video-files:
+    get:
+      description: 获取用户的所有视频文件(类型为3的文件)
+      parameters:
+      - description: 用户名
+        example: '"video_user"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{\"error\": \"user_name is required\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"error\": \"user not found\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取视频文件列表
+      tags:
+      - 文件管理
+  /file/share:
+    get:
+      description: 验证分享链接并返回文件信息
+      parameters:
+      - description: 分享哈希值
+        example: '"abc123"'
+        in: query
+        name: f
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: '{\"error\": \"文件不存在\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "410":
+          description: '{\"error\": \"分享链接已过期\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取分享文件信息
+      tags:
+      - 文件分享
+  /file/shareDownload:
+    get:
+      description: 使用提取码下载分享文件
+      parameters:
+      - description: 文件ID
+        example: '"123"'
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 提取码
+        example: '"ABCD"'
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: '{\"message\": \"提取码错误\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{\"message\": \"文件不存在\"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 下载分享文件
+      tags:
+      - 文件分享
+  /files/docs:
+    get:
+      description: 根据用户名查询用户的文档类文件（类型为1的文件）
+      parameters:
+      - description: 用户名
+        example: '"testuser"'
+        in: query
+        name: user_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回用户信息、文件详情及文档列表
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: '{"error": "user_name is required"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: '{"error": "user not found"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: 获取用户文档文件
+      tags:
+      - 文件管理
+swagger: "2.0"

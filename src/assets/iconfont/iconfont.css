@@ -1,0 +1,103 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4921436 */
+  src: url('iconfont.woff2?t=1754377575873') format('woff2'),
+       url('iconfont.woff?t=1754377575873') format('woff'),
+       url('iconfont.ttf?t=1754377575873') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-gengduo:before {
+  content: "\e64d";
+}
+
+.icon-lajitong:before {
+  content: "\e68c";
+}
+
+.icon-fenxiang:before {
+  content: "\e672";
+}
+
+.icon-xiazai:before {
+  content: "\e627";
+}
+
+.icon-pdf:before {
+  content: "\e623";
+}
+
+.icon-zip:before {
+  content: "\e60b";
+}
+
+.icon-PPT:before {
+  content: "\e642";
+}
+
+.icon-wenjianjia:before {
+  content: "\e80c";
+}
+
+.icon-pdf1:before {
+  content: "\e605";
+}
+
+.icon-mp4-1:before {
+  content: "\e7ac";
+}
+
+.icon-Word-Color:before {
+  content: "\e645";
+}
+
+.icon-mp3:before {
+  content: "\e685";
+}
+
+.icon-tupian:before {
+  content: "\e66a";
+}
+
+.icon-Excel:before {
+  content: "\e87a";
+}
+
+.icon-rar:before {
+  content: "\e855";
+}
+
+.icon-gengxin:before {
+  content: "\e615";
+}
+
+.icon-icon_sousuo:before {
+  content: "\e644";
+}
+
+.icon-yidong:before {
+  content: "\e622";
+}
+
+.icon-shangchuan-copy:before {
+  content: "\e621";
+}
+
+.icon-xinjianwenjian:before {
+  content: "\e637";
+}
+
+.icon-xinjian:before {
+  content: "\e626";
+}
+
+.icon-icon-:before {
+  content: "\e658";
+}
+
