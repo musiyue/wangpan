@@ -17,7 +17,7 @@ onMounted(() => {
   // 校验登录信息 选择进入的页面
   // 登录功能完善后再做校验登录信息 默认跳转login/index
   router.push({
-    path: "/index",
+    path: "/login",
   });
 });
 </script>
